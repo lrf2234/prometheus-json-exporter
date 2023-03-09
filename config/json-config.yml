@@ -1,0 +1,57 @@
+---
+modules:
+ # # # #========================= hbase jmx =========================================================
+  hbase:
+    target:
+      - http://ip1:16030/jmx
+      - http://ip2:16030/jmx
+      - http://ip3:16030/jmx
+    headers:
+      X-Dummy: my-header
+    metrics:
+      - name: OperatingSystem
+        type: guage
+        help: sun.management.OperatingSystemImpl
+        path: '{.beans}'
+        labels:
+          SystemArch:                 '{[?(@.name=="java.lang:type=OperatingSystem")].Arch}'            # 主机操作系统架构
+          SystemName:                 '{[?(@.name=="java.lang:type=OperatingSystem")].Name}'
+          SystemVersion:              '{[?(@.name=="java.lang:type=OperatingSystem")].Version}'         # 主机操作系统
+          Hostname:                   "{[?(@.name==\"Hadoop:service=HBase,name=JvmMetrics\")].tag'.'Hostname}"
+        values:
+          AvailableProcessors:        '{[?(@.name=="java.lang:type=OperatingSystem")].AvailableProcessors}'         # 主机 可用进程数==CPU个数
+          CommittedVirtualMemorySize: '{[?(@.name=="java.lang:type=OperatingSystem")].CommittedVirtualMemorySize}'  # 提交的虚拟内存大小
+          FreePhysicalMemorySize:     '{[?(@.name=="java.lang:type=OperatingSystem")].FreePhysicalMemorySize}'      # 主机空闲物理内存大小
+          TotalPhysicalMemorySize:    '{[?(@.name=="java.lang:type=OperatingSystem")].TotalPhysicalMemorySize}'     # 主机总的物理内存大小
+          FreeSwapSpaceSize:          '{[?(@.name=="java.lang:type=OperatingSystem")].FreeSwapSpaceSize}'           # 主机空闲交换分区大小
+          TotalSwapSpaceSize:         '{[?(@.name=="java.lang:type=OperatingSystem")].TotalSwapSpaceSize}'          # 主机总的交换分区大小
+          SystemLoadAverage:          '{[?(@.name=="java.lang:type=OperatingSystem")].SystemLoadAverage}'           # 主机平均负载
+          SystemCpuLoad:              '{[?(@.name=="java.lang:type=OperatingSystem")].SystemCpuLoad}'               # 主机CPU负载
+          OpenFileDescriptorCount:    '{[?(@.name=="java.lang:type=OperatingSystem")].OpenFileDescriptorCount}'     # 主机当前打开文件数
+          MaxFileDescriptorCount:     '{[?(@.name=="java.lang:type=OperatingSystem")].MaxFileDescriptorCount}'      # 主机可以打开的最大文件数
+
+      - name: HBase_RegionServer_Server
+        type: guage
+        help: RegionServer,sub=Server
+        path: '{.beans[?(@.name=="Hadoop:service=HBase,name=RegionServer,sub=Server")]}'
+        labels:
+          Hostname: "{.tag'.'Hostname}"              # 主机名
+        values:
+          totalRequestCount: '{.totalRequestCount}'                   # Regionserver 总请求数
+          readRequestCount: '{.readRequestCount}'                     # Regionserver 读请求数
+          writeRequestCount: '{.writeRequestCount}'                   # Regionserver 写请求数
+          compactedCellsCount: '{.compactedCellsCount}'               # Regionserver 合并Cell的个数
+          majorCompactedCellsCount: '{.majorCompactedCellsCount}'     # Regionserver 大合并Cell的个数
+          flushedCellsSize: '{.flushedCellsSize}'                     # Regionserver flush到磁盘的大小
+          blockedRequestCount: '{.blockedRequestCount}'               # Regionserver 因memstore大于阈值而引发flush的次数
+          splitRequestCount: '{.splitRequestCount}'                   # Regionserver region分裂请求次数
+          splitSuccessCount: '{.splitSuccessCount}'                   # Regionserver region分裂成功次数
+          slowGetCount: '{.slowGetCount}'                             # Regionserver 请求完成时间超过1000ms的次数
+          regionCount: '{.regionCount}'                               # Regionserver 管理region数量
+          memStoreSize: '{.memStoreSize}'                             # Regionserver 管理的总memstoresize
+          storeFileSize: '{.storeFileSize}'                           # Regionserver 管理的storefile大小
+          staticIndexSize: '{.staticIndexSize}'                       # Regionserver 所管理的表索引大小
+          storeFileCount: '{.storeFileCount}'                         # Regionserver 所管理的storefile个数
+          hlogFileSize: '{.hlogFileSize}'                             # Regionserver WAL文件大小
+          hlogFileCount: '{.hlogFileCount}'                           # Regionserver WAL文件个数
+          storeCount: '{.storeCount}'                                 # Regionserver 所管理的store个数
