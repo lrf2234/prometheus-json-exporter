@@ -64,11 +64,12 @@ def json_collector_module(module: dict) -> (bytes, int):
     replace_regx = re_compile('^{|}$')
     measure_regx = re_compile('^{.*}$')
 
+    json_data = http_json_data(module.get('target'), module.get('headers', {}))         # ### 通过 http 获取json数据
     for met in module.get('metrics', {}):               # # 配置文件中提取 metrics
         met_name = met.get('name')
         path = '$%s' % replace_regx.sub('', met.get('path', '{}'))
 
-        for data in http_json_data(module.get('target'), module.get('headers', {})):     # ### 通过 http 获取json数据
+        for data in json_data:
             path_data = JSONPath(path).parse(data)      # # 提取 json 数据中 path 下对应的数据，返回是 list
             for each_p_data in path_data:
                 labels = {}
